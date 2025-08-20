@@ -25,6 +25,7 @@ builder.Services.AddDbContext<StoreContext>(opt =>
 // où l'application s'arretera.
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 // Configure the HTTP request pipeline.
 
