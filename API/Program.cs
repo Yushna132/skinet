@@ -1,3 +1,4 @@
+using API.Middleware;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -26,11 +27,19 @@ builder.Services.AddDbContext<StoreContext>(opt =>
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddCors();
 
 // Configure the HTTP request pipeline.
-
 var app = builder.Build();
-
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseCors(x => x
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .WithOrigins(
+        "http://localhost:4200",
+        "https://localhost:4200"
+    )
+);
 app.MapControllers();
 
 //Inserting data in our database instead of running the command in the CLI
