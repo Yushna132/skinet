@@ -18,4 +18,9 @@ public interface IGenericRepository<T> where T : BaseEntity
     void Remove(T entity);
     Task<bool> SaveAllAsync();
     bool Exists(int id);
+
+    //total count of possible items in the list of products
+    //this need to happen after fitering but before pagination
+    Task<int> CountAsync(ISpecification<T> spec);
+    
 }

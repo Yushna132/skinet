@@ -1,26 +1,30 @@
-using System.Security.Cryptography.X509Certificates;
+using API.RequestHelpers;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
-using Infrastructure.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController(IGenericRepository<Product> repo) : ControllerBase
+    public class ProductsController(IGenericRepository<Product> repo) : BaseAPIController
     {
 
         //Pour avoir la liste des produits
+        //[FromQuery] dit à ASP.NET Core :
+        //Va lire la query string de l’URL (?pageIndex=2&pageSize=6&brands=angular,react)
+        //Trouve les noms correspondants (pageIndex, pageSize, brands)
+        //Remplis automatiquement les propriétés de ta classe ProductSpecParams avec ces valeurs.
+
+
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProduct(string? brand, string? type, string? sort)
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(
+            [FromQuery] ProductSpecParams specParams)
         {
-            var spec = new ProductSpecification(brand, type, sort);
-            var products = await repo.ListAsync(spec);
-            return Ok(products);
+            var spec = new ProductSpecification(specParams);
+            return await CreatePageResult(repo, spec, specParams.PageIndex, specParams.PageSize);
         }
 
         //pour récupérer un produit unique

@@ -30,6 +30,11 @@ public interface ISpecification<T>
     Expression<Func<T, object>>? OrderByDesc { get; }
 
     bool isDistinct { get; }
+
+    int Take { get; }
+    int Skip { get; }
+    bool isPagingEnabled { get; }
+    IQueryable<T> ApplyCriteria(IQueryable<T> query);
 }
 
 //on a implementé cette interface parce qu'on retourner un objet T non pas un string
