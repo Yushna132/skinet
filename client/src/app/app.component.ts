@@ -3,10 +3,11 @@ import { Header } from './layout/header/header';
 import { Product } from './shared/models/product';
 import { ShopService } from './core/services/shop-service';
 import { ShopComponent } from "./features/shop-component/shop-component";
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [Header, ShopComponent],
+  imports: [RouterOutlet, Header, ShopComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
