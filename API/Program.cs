@@ -1,4 +1,5 @@
 using API.Middleware;
+using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Services;
@@ -38,8 +39,9 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
     return ConnectionMultiplexer.Connect(configuration);
 });
 builder.Services.AddSingleton<ICartService, CartService>();
-
-
+builder.Services.AddAuthorization();
+builder.Services.AddIdentityApiEndpoints<AppUser>()
+    .AddEntityFrameworkStores<StoreContext>();
 
 // Configure the HTTP request pipeline.
 var app = builder.Build();
@@ -47,12 +49,19 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors(x => x
     .AllowAnyHeader()
     .AllowAnyMethod()
+    .AllowCredentials()
     .WithOrigins(
         "http://localhost:4200",
         "https://localhost:4200"
     )
 );
 app.MapControllers();
+
+// C’est la nouveauté de .NET 8 : Identity API Endpoints.
+// MapIdentityApi<AppUser>() → ajoute tous les endpoints par défaut d’ASP.NET Identity 
+//(login, logout, refresh, register, manage password, etc.).
+// Comme tu les mets derrière MapGroup("api"), tous ces endpoints seront accessibles sous le préfixe /api/....
+app.MapGroup("api").MapIdentityApi<AppUser>();
 
 //Inserting data in our database instead of running the command in the CLI
 try
