@@ -27,6 +27,20 @@ public class StoreContextSeed
 
         }
 
+         if (!context.DeliveryMethods.Any())
+        {
+            var deliveryData = await File.ReadAllTextAsync("../Infrastructure/Data/SeedData/delivery.json");
+            //convert the deliveryData into DeliveryMethod object(fount in Entities);
+            var delivery = JsonSerializer.Deserialize<List<DeliveryMethod>>(deliveryData);
+
+            if (delivery == null) return;
+
+            //adding delivery in the table DeliveryMethod in our db
+            context.DeliveryMethods.AddRange(delivery);
+
+            await context.SaveChangesAsync();
+        }
+
     }
 
 }

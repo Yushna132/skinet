@@ -3,23 +3,28 @@ import { nanoid } from 'nanoid';
 
 //En d'autre mot on creer un interface
 export type CartType = {
-    id: string;
-    items : CartItem[];
-}
+  id: string;
+  items: CartItem[];
+  deliveryMethodId?: number;
+  paymentIntentId?: string;
+  clientSecret?: string;
+};
 
 export type CartItem = {
-    productId: number;
-    productName: string;
-    price: number;
-    pictureUrl: string;
-    brand : string;
-    type: string;
-    quantity: number;
-}
+  productId: number;
+  productName: string;
+  price: number;
+  pictureUrl: string;
+  brand: string;
+  type: string;
+  quantity: number;
+};
 
 //Ici c'est une classe qui va heriter de l'interface
-export class Cart implements CartType{
-    id = nanoid(); // identifiant aléatoire unique généré côté client
-    items: CartItem[] = [];
+export class Cart implements CartType {
+  id = nanoid(); // identifiant aléatoire unique généré côté client
+  items: CartItem[] = [];
+  deliveryMethodId?: number;
+  paymentIntentId?: string;
+  clientSecret?: string;
 }
-
