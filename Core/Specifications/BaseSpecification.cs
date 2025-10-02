@@ -31,6 +31,9 @@ public class BaseSpecification<T>(Expression<Func<T, bool>>? criteria) : ISpecif
 
     public bool isPagingEnabled { get; private set; }
 
+    public List<Expression<Func<T, object>>> Includes { get; } = [];
+    public List<string> IncludeStrings { get; } = [];
+
     public IQueryable<T> ApplyCriteria(IQueryable<T> query)
     {
         if (Criteria != null)
@@ -38,6 +41,22 @@ public class BaseSpecification<T>(Expression<Func<T, bool>>? criteria) : ISpecif
             query = query.Where(Criteria);
         }
         return query;
+    }
+
+    /* Ici tu définis la propriété Includes et une méthode AddInclude qui permet de rajouter des navigations à charger.
+    Tu peux appeler AddInclude(x => x.OrderItems) dans une spécification concrète.
+    Ça ajoute la lambda x => x.OrderItems dans la liste Includes.
+    Ensuite, EF saura traduire ça en .Include(o => o.OrderItems).
+    C’est du type-safe Include. */
+
+    protected void AddInclude(Expression<Func<T, object>> includeExpression)
+    {
+        Includes.Add(includeExpression);
+    }
+
+     protected void AddInclude(string includeString)
+    {
+        IncludeStrings.Add(includeString);
     }
 
     protected void AddOrderBy(Expression<Func<T, object>> orderByExpression)

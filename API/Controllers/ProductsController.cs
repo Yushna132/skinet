@@ -9,7 +9,8 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController(IGenericRepository<Product> repo) : BaseAPIController
+    //public class ProductsController(IGenericRepository<Product> repo) : BaseAPIController
+    public class ProductsController(IUnitOfWork unit) : BaseAPIController
     {
 
         //Pour avoir la liste des produits
@@ -24,14 +25,16 @@ namespace API.Controllers
             [FromQuery] ProductSpecParams specParams)
         {
             var spec = new ProductSpecification(specParams);
-            return await CreatePageResult(repo, spec, specParams.PageIndex, specParams.PageSize);
+            //return await CreatePageResult(repo, spec, specParams.PageIndex, specParams.PageSize);
+            return await CreatePageResult(unit.Repository<Product>(), spec, specParams.PageIndex, specParams.PageSize);
         }
 
         //pour récupérer un produit unique
         [HttpGet("{id:int}")] // api/products/2
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await repo.GetByIdAsync(id);
+            //var product = await repo.GetByIdAsync(id);
+            var product = await unit.Repository<Product>().GetByIdAsync(id);
             if (product == null) return NotFound();
 
             return product;
@@ -42,8 +45,13 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> CreateProduct(Product product)
         {
-            repo.Add(product);
+            /* repo.Add(product);
             if (await repo.SaveAllAsync())
+            {
+                return CreatedAtAction("GetProduct", new { id = product.Id }, product);
+            }*/
+            unit.Repository<Product>().Add(product);
+            if (await unit.Complete())
             {
                 return CreatedAtAction("GetProduct", new { id = product.Id }, product);
             }
@@ -59,12 +67,19 @@ namespace API.Controllers
             if (product.Id != id || !ProductExists(id))
                 return BadRequest("Cannot update this product");
 
-            repo.Update(product);
-
+            /* repo.Update(product);
+            
             if (await repo.SaveAllAsync())
             {
                 return NoContent();
+            } */
+
+            unit.Repository<Product>().Update(product);
+            if (await unit.Complete())
+            {
+                return NoContent();
             }
+
 
             return BadRequest("Problem updating product");
         }
@@ -73,12 +88,22 @@ namespace API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
-            var product = await repo.GetByIdAsync(id);
+            /* var product = await repo.GetByIdAsync(id);
 
             if (product == null) return NotFound();
 
             repo.Remove(product);
             if (await repo.SaveAllAsync())
+            {
+                return NoContent();
+            } */
+
+            var product = await  unit.Repository<Product>().GetByIdAsync(id);
+
+            if (product == null) return NotFound();
+
+            unit.Repository<Product>().Remove(product);
+            if (await unit.Complete())
             {
                 return NoContent();
             }
@@ -93,7 +118,8 @@ namespace API.Controllers
             //return Ok(await repo.GetBrandsAsync());
 
             var spec = new BrandListSpecification();
-            return Ok(await repo.ListAsync(spec));
+            //return Ok(await repo.ListAsync(spec));
+            return Ok(await unit.Repository<Product>().ListAsync(spec));
         }
 
         [HttpGet("types")]
@@ -103,12 +129,14 @@ namespace API.Controllers
             //return Ok(await repo.GetTypesAsync());
 
             var spec = new TypeListSpecification();
-            return Ok(await repo.ListAsync(spec));
+            // return Ok(await repo.ListAsync(spec));
+            return Ok(await unit.Repository<Product>().ListAsync(spec));
         }
 
         private bool ProductExists(int id)
         {
-            return repo.Exists(id);
+            //return repo.Exists(id);
+            return unit.Repository<Product>().Exists(id);
         }
     }
 }

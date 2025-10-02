@@ -1,12 +1,13 @@
 using Core.Entities;
 using Core.Interfaces;
+using Infrastructure.Data;
 using Microsoft.Extensions.Configuration;
 using Stripe;
 
 namespace Infrastructure.Services;
 
 public class PaymentService(IConfiguration config, ICartService cartService,
-        IGenericRepository<Core.Entities.Product> productRepo, IGenericRepository<DeliveryMethod> dmRepo) : IPaymentService
+        IUnitOfWork unit) : IPaymentService
 {
 
     /* IConfiguration config
@@ -64,7 +65,7 @@ public class PaymentService(IConfiguration config, ICartService cartService,
         // Vérifier la méthode de livraison
         if (cart.DeliveryMethodId.HasValue)
         {
-            var deliveryMethod = await dmRepo.GetByIdAsync((int)cart.DeliveryMethodId);
+            var deliveryMethod = await unit.Repository<DeliveryMethod>().GetByIdAsync((int)cart.DeliveryMethodId);
             if (deliveryMethod == null) return null;
 
             shippingPrice = deliveryMethod.Price;
@@ -73,7 +74,7 @@ public class PaymentService(IConfiguration config, ICartService cartService,
         // Vérifier & mettre à jour les prix des produits
         foreach (var item in cart.Items)
         {
-            var product = await productRepo.GetByIdAsync(item.ProductId); // On cherche le produit dans le panier dans notre BDD(table product)
+            var product = await unit.Repository<Core.Entities.Product>().GetByIdAsync(item.ProductId); // On cherche le produit dans le panier dans notre BDD(table product)
             if (product == null) return null;
 
             //On verifie le prix et on corrige

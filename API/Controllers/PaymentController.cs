@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class PaymentController(IPaymentService paymentService, IGenericRepository<DeliveryMethod> dmRepo ) : BaseAPIController
+public class PaymentController(IPaymentService paymentService, IUnitOfWork unit ) : BaseAPIController
 {
 
     //Créer ou mettre à jour le payment Intent
@@ -27,7 +27,7 @@ public class PaymentController(IPaymentService paymentService, IGenericRepositor
     [HttpGet("delivery-methods")]
     public async Task<ActionResult<IReadOnlyList<DeliveryMethod>>> GetDeliveryMethod()
     {
-        var methods = await dmRepo.ListAllAsync();
+        var methods = await  unit.Repository<DeliveryMethod>().ListAllAsync();
         return Ok(methods);
     }
 }
