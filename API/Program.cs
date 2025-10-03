@@ -1,4 +1,5 @@
 using API.Middleware;
+using API.SignalR;
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Data;
@@ -44,6 +45,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<AppUser>()
     .AddEntityFrameworkStores<StoreContext>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddSignalR();
 
 // Configure the HTTP request pipeline.
 var app = builder.Build();
@@ -58,6 +60,10 @@ app.UseCors(x => x
     .AllowCredentials()
 );
 
+// Auth obligatoire avant SignalR
+app.UseAuthentication(); //permet d’identifier l’utilisateur (via cookie, JWT, etc.).
+app.UseAuthorization(); //aplique les règles [Authorize] si tu veux restreindre l’accès au hub ou à certaines méthodes.
+
 
 
 app.MapControllers();
@@ -67,6 +73,9 @@ app.MapControllers();
 //(login, logout, refresh, register, manage password, etc.).
 // Comme tu les mets derrière MapGroup("api"), tous ces endpoints seront accessibles sous le préfixe /api/....
 app.MapGroup("api").MapIdentityApi<AppUser>();
+
+// Mapping du hub dans le environment.developement.ts du client(Angular)
+app.MapHub<NotificationHub>("hub/notifications");
 
 //Inserting data in our database instead of running the command in the CLI
 try
