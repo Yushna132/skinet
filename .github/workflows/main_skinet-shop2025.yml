@@ -18,6 +18,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 1) Rendre Node dispo sur la VM GitHub
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+    # 2) Installer Angular CLI (attention au bon package: @angular/cli)
+      - name: Install Angular CLI
+        run: npm i -g @angular/cli@20
+
+    # 3) Installer les deps et build Angular
+    # Remplace ClientApp par le nom de ton dossier Angular (ex: client)
+      - name: Install deps & build Angular app
+        run: |
+          cd client
+          npm install
+          ng build
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
