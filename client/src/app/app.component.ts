@@ -7,7 +7,8 @@ import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, ShopComponent],
+  imports: [
+    RouterOutlet, Header, ShopComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

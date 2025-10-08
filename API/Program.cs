@@ -64,8 +64,14 @@ app.UseCors(x => x
 app.UseAuthentication(); //permet d’identifier l’utilisateur (via cookie, JWT, etc.).
 app.UseAuthorization(); //aplique les règles [Authorize] si tu veux restreindre l’accès au hub ou à certaines méthodes.
 
+// Servir index.html comme fichier par défaut
+//sert automatiquement index.html depuis wwwroot si on appelle /
+app.UseDefaultFiles();
 
+// Servir tous les fichiers statiques (JS, CSS, assets…)
+app.UseStaticFiles();
 
+// Routes API
 app.MapControllers();
 
 // C’est la nouveauté de .NET 8 : Identity API Endpoints.
@@ -76,6 +82,12 @@ app.MapGroup("api").MapIdentityApi<AppUser>();
 
 // Mapping du hub dans le environment.developement.ts du client(Angular)
 app.MapHub<NotificationHub>("hub/notifications");
+
+// Fallback : si aucune route API ou statique ne correspond
+//redirige les routes inconnues vers Angular (ex: /shop/42)
+//Le FallbackController est là uniquement pour gérer le routage côté Angular.
+app.MapFallbackToController("Index", "Fallback");
+
 
 //Inserting data in our database instead of running the command in the CLI
 try
