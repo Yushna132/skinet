@@ -157,9 +157,9 @@ async confirmPayment(confirmation_token: ConfirmationToken){
 
     return this.http.post<Cart>(this.baseUrl + 'payment/' + cart.id, {}).pipe( 
       
-      map( cart => {
+      map( async cart => {
        // this.cartService.cart.set(cart); // maj locale du signal (évite un aller-retour)
-        this.cartService.setCart(cart);
+        await firstValueFrom()this.cartService.setCart(cart));
         return cart;
       })
     )

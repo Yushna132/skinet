@@ -37,13 +37,13 @@ export class CheckoutDeliveryComponent implements OnInit {
     );
   }
 
-  updateDeliveryMethod(method: DeliveryMethod){
+  async updateDeliveryMethod(method: DeliveryMethod){
     this.cartService.selectedDelivery.set(method); //On met à jour le signal Angular selectedDelivery avec cet objet complet.
     //maintenant on met à jour la carte
     const cart = this.cartService.cart();
     if(cart){
       cart.deliveryMethodId = method.id;
-      this.cartService.setCart(cart); //MAJ du carte dans le backend
+      await firstValueFrom(this.cartService.setCart(cart)); //MAJ du carte dans le backend
       this.deliveryComplete.emit(true);
     }
   }
